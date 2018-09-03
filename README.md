@@ -1,6 +1,6 @@
 # vuetest
 
-> A Vue.js project
+> vue plugin develope
 
 ## Build Setup
 
