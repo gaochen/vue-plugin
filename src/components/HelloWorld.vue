@@ -27,8 +27,8 @@ export default {
                 'https://m.hexiehealth.com/abwx_cms/up_load/1250122_index.jpg'
             ],
             options: {
-                // perView: 3,
-                // spaceBetween: 20,
+                perView: 3,
+                spaceBetween: 20,
                 index: 0,
                 autoPlay: true,
                 loop: true

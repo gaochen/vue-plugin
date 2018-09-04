@@ -1,6 +1,6 @@
 <template>
     <div id="ca-slider-pc">
-        <div class="ca-slider-container" ref="container">
+        <div class="ca-slider-container" ref="container" @mouseenter="clearTimer()" @mouseleave="setTimer()">
             <div class="ca-slider-left-btn" @click="prev()"></div>
             <div class="ca-slider-right-btn" @click="next()"></div>
             <ul class="clearfix" :style="{
@@ -57,7 +57,8 @@ export default {
             translateX: 0,
             ul_w: 0,
             li_w: 0,
-            parentWidth: 0
+            parentWidth: 0,
+            timer: null
         }
     },
     computed: {},
@@ -95,9 +96,7 @@ export default {
         this.translateX = -1 * (this.li_w + this.spaceBetween) * this.index
 
         // 自动播放
-        if (this.autoPlay) {
-
-        }
+        this.setTimer(this.timer)
     },
     watch: {
         translateX: function(newValue) {
@@ -145,7 +144,7 @@ export default {
         next() {
             let max = this.list.length - this.perView
             // 无缝连接
-            if (this.index === max) {
+            if (this.index === max && this.loop) {
                 this.index = this.perView
                 this.translateX = this.translateX + this.dataList.length * (this.li_w + this.spaceBetween)
             }
@@ -160,8 +159,8 @@ export default {
         },
         prev() {
             // 无缝连接
-            if (this.index === 0) {
-                this.index = this.list.length - this.perView
+            if (this.index === 0 && this.loop) {
+                this.index = this.dataList.length
                 this.translateX = this.translateX - this.dataList.length * (this.li_w + this.spaceBetween)
             }
             if (this.index > 0) {
@@ -177,7 +176,7 @@ export default {
          * attr: string, 不要改变的属性
          * speed: number, 运动的速度
          * finalValue: number, 运动的终值
-         * bool: boolean, 运动方向
+         * bool: boolean, 运动方向，true为next，false为prev
          */
         move(attr, speed, finalValue, bool) {
             clearInterval(timer)
@@ -220,6 +219,20 @@ export default {
                     }, 1000 / 60)
                 }
             }
+        },
+        setTimer() {
+            if (this.autoPlay && this.loop) {
+                console.log('开启自动播放')
+                var that = this
+
+                this.timer = setInterval(function() {
+                    that.next()
+                }, 3000)
+            }
+        },
+        clearTimer() {
+            console.log('关闭自动播放')
+            clearInterval(this.timer)
         }
     }
 }
