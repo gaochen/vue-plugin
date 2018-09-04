@@ -11,8 +11,10 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "element-ui": "^2.4.6",
     "less": "^3.8.1",
     "less-loader": "^4.1.0",
+    "swiper": "^4.3.5",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },
