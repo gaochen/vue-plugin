@@ -1,10 +1,10 @@
 <template>
-	<div class="hello">
-		<div class="slider-demo">
-			<slider :options="options" :dataList="urlList">
-			</slider>
-		</div>
-	</div>
+    <div class="hello">
+        <div class="slider-demo">
+            <slider :options="options" :dataList="urlList">
+            </slider>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -27,11 +27,12 @@ export default {
                 'https://m.hexiehealth.com/abwx_cms/up_load/1250122_index.jpg'
             ],
             options: {
-                perView: 3,
-                spaceBetween: 20,
+                perView: 1,
+                spaceBetween: 0,
                 index: 0,
                 autoPlay: true,
-                loop: true
+                loop: true,
+                drag: true
             }
         }
     }
@@ -41,10 +42,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .slider-demo {
-   width: 800px;
-   height: 200px;
-   border: 1px solid #000;
-   margin: 0 auto;
-   background-color: green;
+    width: 800px;
+    height: 200px;
+    border: 1px solid #000;
+    margin: 0 auto;
+    background-color: green;
 }
 </style>

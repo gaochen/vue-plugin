@@ -1,13 +1,13 @@
 <template>
-    <div id="ca-slider-pc">
-        <div class="ca-slider-container" ref="container" @mouseenter="clearTimer()" @mouseleave="setTimer()">
-            <div class="ca-slider-left-btn" @click="prev()"></div>
-            <div class="ca-slider-right-btn" @click="next()"></div>
-            <ul class="clearfix" :style="{
+    <div id="ca-slider-pc" @mouseover="showBtn = true" @mouseout="showBtn = false">
+        <div class="ca-slider-container" ref="container" @mousedown.stop="mouseStart" @mouseup.stop="mouseEnd" @mouseenter="clearTimer()" @mouseleave="setTimer()">
+            <div v-if="hasBtn" v-show="showBtn" class="ca-slider-left-btn" @click="prev()"></div>
+            <div v-if="hasBtn" v-show="showBtn" class="ca-slider-right-btn" @click="next()" @mouseout.stop></div>
+            <ul class="clearfix ca-slider-list" :style="{
 						'transform':'translateX('+translateX+'px)',
 		                'width': ul_w + 'px'
 					}">
-                <li class="ca-slier-item" v-for="(item, index) in list" :key="index" :style="{backgroundImage: 'url('+ item +')', width: li_w + 'px', marginRight: spaceBetween + 'px'}">
+                <li class="ca-slider-item" v-for="(item, index) in list" :key="index" :style="{backgroundImage: 'url('+ item +')', width: li_w + 'px', marginRight: spaceBetween + 'px'}">
                 </li>
             </ul>
         </div>
@@ -36,10 +36,18 @@ export default {
                 default: 0
             },
             autoPlay: {
-                type: Boolean,
+                type: Boolean, // 需要首先开启循环
                 default: false
             },
             loop: {
+                type: Boolean,
+                default: false
+            },
+            slideGroup: {
+                type: Boolean,
+                default: false
+            },
+            drag: {
                 type: Boolean,
                 default: false
             }
@@ -53,62 +61,88 @@ export default {
             spaceBetween: this.options.spaceBetween || 0,
             autoPlay: this.options.autoPlay,
             loop: this.options.loop,
-            IEVersion: null,
-            translateX: 0,
-            ul_w: 0,
-            li_w: 0,
-            parentWidth: 0,
-            timer: null
+            slideGroup: this.options.slideGroup || false,
+            drag: this.options.drag,
+            IEVersion: null, // 浏览器版本
+            translateX: 0, // ul的x轴偏移量
+            ul_w: 0, // ul的宽度
+            li_w: 0, // li的宽度
+            parentWidth: 0, // slider容器的宽度
+            perWidth: 0, // 轮播一次的距离
+            timer: null, // 用于存放自动播放的定时器
+            startX: 0, // 每次拖动的起始x轴坐标
+            startY: 0, // 每次拖动的起始y轴坐标
+            moveDistance: 0, // 鼠标拖动的总距离
+            hasBtn: true,
+            showBtn: false,
+            groupArr: []
         }
     },
-    computed: {},
-    created() {
-
-    },
+    created() {},
     mounted() {
         this.IEVersion = this.getIEVersion()
-
-        // 轮播
-        if (this.loop) {
-            let dataList = this.dataList
-
-            // 右侧加入
-            let arr_R = dataList.slice(0, this.perView)
-            this.list = this.list.concat(arr_R)
-
-            // 左侧加入
-            let arr_L = dataList.slice(-1 * this.perView)
-            this.list = arr_L.concat(this.list)
-
-            // 充值index
-            this.index = this.index + this.perView
-        }
-
-        // 计算ul、li宽度
-        let length = this.list.length
-        this.parentWidth = this.$el.offsetWidth
-        let perView = this.perView
-        let marginWidth = (perView - 1) * this.spaceBetween
-        this.li_w = (this.parentWidth - marginWidth) / perView
-        this.ul_w = (this.li_w + this.spaceBetween) * length
-
-        // 计算初始位置
-        this.translateX = -1 * (this.li_w + this.spaceBetween) * this.index
-
-        // 自动播放
-        this.setTimer(this.timer)
+        this.init()
     },
-    watch: {
-        translateX: function(newValue) {
-            // console.log('watch translateX:' + newValue)
-            // let endValue = -1 * (this.list.length - this.perView) * this.li_w
-            // if (newValue === endValue) {
-            //     this.index = this.perView
-            //     this.translateX =  -1 * this.index * this.li_w
-            // }
-        }
-    },
+    watch: {},
     methods: {
+        init() {
+            // 判断li个数
+            if (this.dataList.length <= this.perView) {
+                this.list = this.dataList
+                this.hasBtn = false
+                // 计算ul、li宽度
+                var length = this.dataList.length
+                this.parentWidth = this.$el.offsetWidth
+                var perView = this.perView
+                var marginWidth = (perView - 1) * this.spaceBetween
+                this.li_w = (this.parentWidth - marginWidth) / perView
+                this.ul_w = (this.li_w + this.spaceBetween) * length
+
+                return false
+            }
+
+            // 整屏滚动
+            if (this.perView > 1 && this.slideGroup) {
+                var length = this.dataList.length
+                var perView = this.perView
+                var diff = this.perView - length % perView
+                for (var i = 0; i < diff; i++) {
+                    this.list.push('')
+                }
+                this.list = this.list.concat()
+            }
+
+            // 无缝循环
+            if (this.loop) {
+                var dataList = this.dataList
+
+                // 右侧补足
+                var arr_R = dataList.slice(0, this.perView)
+                this.list = this.list.concat(arr_R)
+
+                // 左侧补足
+                var arr_L = dataList.slice(-1 * this.perView)
+                this.list = arr_L.concat(this.list)
+
+                // 重置index
+                this.index = this.index + this.perView
+            }
+
+            // 计算ul、li宽度
+            var length = this.list.length
+            this.parentWidth = this.$el.offsetWidth
+            var perView = this.perView
+            var marginWidth = (perView - 1) * this.spaceBetween
+            this.li_w = (this.parentWidth - marginWidth) / perView
+            this.ul_w = (this.li_w + this.spaceBetween) * length
+            this.perWidth = this.li_w + this.spaceBetween
+
+            // 计算初始位置
+            this.translateX = -1 * (this.li_w + this.spaceBetween) * this.index
+
+            // 自动播放
+            this.setTimer(this.timer)
+        },
         getIEVersion() {
             var userAgent = navigator.userAgent // 取得浏览器的userAgent字符串
             var isIE =
@@ -142,87 +176,85 @@ export default {
             }
         },
         next() {
-            let max = this.list.length - this.perView
-            // 无缝连接
+            this.showBtn = true
+            var max = this.list.length - this.perView
+            // 无缝连接，此处解决运动还未结束，用户就点击下一页，重置ul位置
             if (this.index === max && this.loop) {
                 this.index = this.perView
-                this.translateX = this.translateX + this.dataList.length * (this.li_w + this.spaceBetween)
+                this.translateX =
+                    this.translateX + this.dataList.length * this.perWidth
             }
             if (this.index < max) {
                 this.index++
-
-                let finalValue =
-                    -1 * this.index * (this.li_w + this.spaceBetween)
-
-                this.move('translateX', 20, finalValue, true)
+                var finalValue = -1 * this.index * this.perWidth
+                this.move('translateX', 20, finalValue)
+            } else {
+                var finalValue = -1 * this.index * this.perWidth
+                this.move('translateX', 20, finalValue)
             }
         },
         prev() {
-            // 无缝连接
+            // 无缝连接，此处解决运动还未结束，用户就点击上一页，重置ul位置
             if (this.index === 0 && this.loop) {
                 this.index = this.dataList.length
-                this.translateX = this.translateX - this.dataList.length * (this.li_w + this.spaceBetween)
+                this.translateX =
+                    this.translateX - this.dataList.length * this.perWidth
             }
             if (this.index > 0) {
                 this.index--
-
-                let finalValue =
-                    -1 * this.index * (this.li_w + this.spaceBetween)
-
-                this.move('translateX', 20, finalValue, false)
+                var finalValue = -1 * this.index * this.perWidth
+                this.move('translateX', 20, finalValue)
+            } else {
+                var finalValue = -1 * this.index * this.perWidth
+                this.move('translateX', 20, finalValue)
             }
         },
         /**
          * attr: string, 不要改变的属性
          * speed: number, 运动的速度
          * finalValue: number, 运动的终值
-         * bool: boolean, 运动方向，true为next，false为prev
          */
-        move(attr, speed, finalValue, bool) {
+        move(attr, speed, finalValue) {
             clearInterval(timer)
-            let timer = null
+            var timer = null
 
-            if (bool) {
-                if (this[attr] > finalValue) {
-                    timer = setInterval(() => {
-                        let finalValue = -1 * this.index * (this.li_w + this.spaceBetween)
-                        let distance = this[attr] - finalValue
-                        let sudu = distance / 8
-                        if (sudu < 3) {
-                            sudu = 3
-                        }
-
-                        if (distance <= 3) {
-                            this[attr] = finalValue
-                            clearInterval(timer)
-                        } else {
-                            this[attr] = this[attr] - sudu
-                        }
-                    }, 1000 / 60)
+            timer = setInterval(() => {
+                var finalValue = -1 * this.index * this.perWidth
+                var distance = this[attr] - finalValue
+                var sudu = distance / 8
+                if (Math.abs(sudu) < 3) {
+                    if (distance > 0) {
+                        sudu = 3
+                    } else {
+                        sudu = -3
+                    }
                 }
-            } else {
-                if (this[attr] < finalValue) {
-                    timer = setInterval(() => {
-                        let finalValue = -1 * this.index * (this.li_w + this.spaceBetween)
-                        let distance = finalValue - this[attr]
-                        let sudu = distance / 8
-                        if (sudu < 3) {
-                            sudu = 3
-                        }
 
-                        if (distance <= 3) {
-                            this[attr] = finalValue
-                            clearInterval(timer)
-                        } else {
-                            this[attr] = this[attr] + sudu
-                        }
-                    }, 1000 / 60)
+                if (Math.abs(distance) <= 3) {
+                    this[attr] = finalValue
+                    clearInterval(timer)
+
+                    // 无缝连接，鼠标拖动到最后一页，重置ul位置
+                    var max = this.list.length - this.perView
+                    if (this.index === max && this.loop) {
+                        this.index = this.perView
+                        this.translateX =
+                            this.translateX +
+                            this.dataList.length * this.perWidth
+                    }
+                    if (this.index === 0 && this.loop) {
+                        this.index = this.dataList.length
+                        this.translateX =
+                            this.translateX -
+                            this.dataList.length * this.perWidth
+                    }
+                } else {
+                    this[attr] = this[attr] - sudu
                 }
-            }
+            }, 1000 / 60)
         },
         setTimer() {
             if (this.autoPlay && this.loop) {
-                console.log('开启自动播放')
                 var that = this
 
                 this.timer = setInterval(function() {
@@ -231,8 +263,79 @@ export default {
             }
         },
         clearTimer() {
-            console.log('关闭自动播放')
             clearInterval(this.timer)
+        },
+        mouseStart(event) {
+            if (!this.drag) {
+                return false
+            }
+
+            // 无缝连接，重置ul位置
+            var max = this.list.length - this.perView
+            if (this.index === max && this.loop) {
+                this.index = this.perView
+                this.translateX =
+                    this.translateX + this.dataList.length * this.perWidth
+            }
+            if (this.index === 0 && this.loop) {
+                this.index = this.dataList.length
+                this.translateX =
+                    this.translateX - this.dataList.length * this.perWidth
+            }
+
+            // 是否为左键
+            if (event.button !== 0) {
+                return false
+            }
+
+            this.startX = event.x || event.pageX
+            this.startY = event.y || event.pageY
+
+            this.$refs.container.addEventListener(
+                'mousemove',
+                this.mouseMove,
+                false
+            )
+        },
+        mouseMove(event) {
+            var x = event.x || event.pageX
+            var y = event.y || event.pageY
+
+            var distanceX = x - this.startX
+            var distanceY = y - this.startY
+
+            // 判断鼠标运动方向，若y轴方向运动距离大于x轴方向则不滑动
+            if (Math.abs(distanceX) < Math.abs(distanceY)) {
+                return false
+            }
+
+            this.translateX = this.translateX + distanceX * 0.4
+
+            this.startX = x
+            this.startY = y
+            this.moveDistance += distanceX
+        },
+        mouseEnd(event) {
+            if (!this.drag) {
+                return false
+            }
+
+            this.$refs.container.removeEventListener(
+                'mousemove',
+                this.mouseMove
+            )
+            if (Math.abs(this.moveDistance) > this.perWidth / 2) {
+                if (this.moveDistance > 0) {
+                    this.prev()
+                } else {
+                    this.next()
+                }
+            } else {
+                var finalValue = -1 * this.index * this.perWidth
+                this.move('translateX', 20, finalValue)
+            }
+
+            this.moveDistance = 0
         }
     }
 }
@@ -279,7 +382,7 @@ export default {
             width: auto;
             height: 100%;
 
-            .ca-slier-item {
+            .ca-slider-item {
                 float: left;
                 height: 100%;
 
