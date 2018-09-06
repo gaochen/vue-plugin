@@ -3,13 +3,14 @@
         <div class="ca-slider-container" ref="container" @mousedown.stop="mouseStart" @mouseup.stop="mouseEnd" @mouseenter="clearTimer()" @mouseleave="setTimer()">
             <div v-if="hasBtn" v-show="showBtn" class="ca-slider-left-btn" @click="prev()"></div>
             <div v-if="hasBtn" v-show="showBtn" class="ca-slider-right-btn" @click="next()" @mouseout.stop="showBtn = false"></div>
-            <ul class="clearfix ca-slider-list" :style="{
+            <div class="clearfix ca-slider-list" :style="{
 						'transform':'translateX('+translateX+'px)',
 		                'width': ul_w + 'px'
 					}">
-                <li class="ca-slider-item" v-for="(item, index) in list" :key="index" :style="{backgroundImage: 'url('+ item +')', width: li_w + 'px', marginRight: spaceBetween + 'px'}">
-                </li>
-            </ul>
+                <!-- <li class="ca-slider-item" v-for="(item, index) in list" :key="index" :style="{backgroundImage: 'url('+ item +')', width: li_w + 'px', marginRight: spaceBetween + 'px'}">
+                </li> -->
+                <slot></slot>
+            </div>
         </div>
     </div>
 </template>
@@ -18,10 +19,6 @@
 export default {
     name: 'slider',
     props: {
-        dataList: {
-            type: Array,
-            default: []
-        },
         options: {
             index: {
                 type: Number,
@@ -55,6 +52,7 @@ export default {
     },
     data() {
         return {
+            dataList: [],
             list: this.dataList,
             index: this.options.index || 0,
             perView: this.options.perView || 1,
@@ -80,11 +78,26 @@ export default {
     },
     created() {},
     mounted() {
+        console.log(this.$children)
+        this.updateItems()
         this.IEVersion = this.getIEVersion()
         this.init()
     },
-    watch: {},
+    watch: {
+        li_w: function(newValue) {
+            this.$children.forEach(item => {
+                item.li_w = newValue
+                item.spaceBetween = this.spaceBetween
+            });
+        },
+    },
     methods: {
+        updateItems() {
+            this.dataList = this.$children.filter(function(item) {
+                return item.$options._componentTag === 'sliderItem'
+            })
+            this.list = this.dataList
+        },
         init() {
             // 判断li个数
             if (this.dataList.length <= this.perView) {
@@ -378,7 +391,7 @@ export default {
             cursor: pointer;
         }
 
-        ul {
+        .ca-slider-list {
             width: auto;
             height: 100%;
 

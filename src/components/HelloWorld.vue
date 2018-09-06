@@ -1,8 +1,13 @@
 <template>
     <div class="hello">
         <div class="slider-demo">
-            <slider :options="options" :dataList="urlList">
-            </slider>
+            <!-- <slider :options="options" :dataList="urlList">
+            </slider> -->
+            <sliderContainer :options="options">
+                <sliderItem v-for="(item, index) in urlList" :key="index">
+                    <img class="slider-image" :src="item" alt="">
+                </sliderItem>
+            </sliderContainer>
         </div>
     </div>
 </template>
@@ -10,12 +15,14 @@
 <script>
 import slider from '@/components/slider.vue'
 import sliderItem from '@/components/slider-item.vue'
+import sliderContainer from '@/components/slider-container.vue'
 
 export default {
     name: 'HelloWorld',
     components: {
         slider,
-        sliderItem
+        sliderItem,
+        sliderContainer
     },
     data() {
         return {
@@ -30,9 +37,9 @@ export default {
                 perView: 1,
                 spaceBetween: 0,
                 index: 0,
-                autoPlay: true,
-                loop: true,
-                drag: true
+                autoPlay: false,
+                loop: false,
+                drag: false
             }
         }
     }
@@ -47,5 +54,9 @@ export default {
     border: 1px solid #000;
     margin: 0 auto;
     background-color: green;
+
+    .slider-image {
+        width: 100%;
+    }
 }
 </style>
