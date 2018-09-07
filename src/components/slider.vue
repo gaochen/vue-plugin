@@ -1,10 +1,12 @@
 <template>
     <div id="ca-slider-pc" @mouseover="showBtn = true" @mouseout="showBtn = false">
         <div class="ca-slider-container" ref="container" @mousedown.stop="mouseStart" @mouseup.stop="mouseEnd" @mouseenter="clearTimer()" @mouseleave="setTimer()">
-            <div v-if="hasBtn" v-show="showBtn" class="ca-slider-left-btn" @click="prev()"></div>
-            <div v-if="hasBtn" v-show="showBtn" class="ca-slider-right-btn" @click="next()" @mouseout.stop="showBtn = false"></div>
+            <div v-if="hasBtn" v-show="showBtn" :class="{'ca-slider-btn-disable': !this.loop && this.index === 0}" class="ca-slider-left-btn iconfont icon-arrow_left" @click="prev()"></div>
+            <div v-if="hasBtn" v-show="showBtn" :class="{'ca-slider-btn-disable': !this.loop && this.index === this.max}" class="ca-slider-right-btn iconfont icon-arrow_right" @click="next()"></div>
             <ul class="clearfix ca-slider-list" :style="{
-						'transform':'translateX('+translateX+'px)',
+						'transform': 'translateX('+translateX+'px)',
+                        '-ms-transform': 'translateX('+translateX+'px)',
+                        '-webkit-transform': 'translateX('+translateX+'px)',
 		                'width': ul_w + 'px'
 					}">
                 <li class="ca-slider-item" v-for="(item, index) in list" :key="index" :style="{backgroundImage: 'url('+ item +')', width: li_w + 'px', marginRight: spaceBetween + 'px'}">
@@ -19,37 +21,50 @@ export default {
     name: 'slider',
     props: {
         dataList: {
+            // 轮播图片链接，必填
             type: Array,
             default: []
         },
         options: {
             index: {
+                // 轮播起始位置
                 type: Number,
                 default: 0
             },
             perView: {
+                // 一屏多少个图片
                 type: Number,
                 default: 1
             },
             spaceBetween: {
+                // 图片的间距
                 type: Number,
                 default: 0
             },
             autoPlay: {
-                type: Boolean, // 需要首先开启循环
+                // 是否自动播放，需要先开启无缝滚动
+                type: Boolean,
                 default: false
             },
             loop: {
+                // 是否开启无缝滚动
                 type: Boolean,
                 default: false
             },
             slideGroup: {
+                // 是否全屏滚动，针对于一屏有多个图片
                 type: Boolean,
                 default: false
             },
             drag: {
+                // 是否鼠标可拖动
                 type: Boolean,
                 default: false
+            },
+            autoSpeed: {
+                // 自动播放的时间间隔
+                type: Number,
+                default: 0
             }
         }
     },
@@ -75,12 +90,14 @@ export default {
             moveDistance: 0, // 鼠标拖动的总距离
             hasBtn: true,
             showBtn: false,
-            groupArr: [],
+            groupLength: 0,
+            max: 0, // index的最大值
+            span: 0, // 重置ul位置时的跨度
+            startPosition: 0 // ul重置的位置
         }
     },
-    created() {},
     mounted() {
-        this.IEVersion = this.getIEVersion()
+        // this.IEVersion = this.getIEVersion()
         this.init()
     },
     watch: {},
@@ -110,11 +127,13 @@ export default {
                     this.list.push('')
                 }
                 this.list = this.list.concat()
+                this.groupLength = Math.ceil(length / this.perView)
             }
 
             // 无缝循环
             if (this.loop) {
-                var dataList = this.dataList
+                // 判断是否为全屏滚动
+                var dataList = this.groupLength > 0 ? this.list : this.dataList
 
                 // 右侧补足
                 var arr_R = dataList.slice(0, this.perView)
@@ -125,7 +144,11 @@ export default {
                 this.list = arr_L.concat(this.list)
 
                 // 重置index
-                this.index = this.index + this.perView
+                if (this.groupLength > 0) {
+                    this.index = this.index + 1
+                } else {
+                    this.index = this.index + this.perView
+                }
             }
 
             // 计算ul、li宽度
@@ -135,10 +158,24 @@ export default {
             var marginWidth = (perView - 1) * this.spaceBetween
             this.li_w = (this.parentWidth - marginWidth) / perView
             this.ul_w = (this.li_w + this.spaceBetween) * length
-            this.perWidth = this.li_w + this.spaceBetween
+
+            // 计算滚动一次的距离
+            this.perWidth =
+                this.groupLength > 0
+                    ? (this.li_w + this.spaceBetween) * this.perView
+                    : this.li_w + this.spaceBetween
+
+            // 计算index的最大值，跨度
+            this.startPosition = this.groupLength > 0 ? 1 : this.perView
+            this.max =
+                this.groupLength > 0
+                    ? this.loop ? this.groupLength + 1 : this.groupLength - 1
+                    : this.list.length - this.perView
+            this.span =
+                this.groupLength > 0 ? this.groupLength : this.dataList.length
 
             // 计算初始位置
-            this.translateX = -1 * (this.li_w + this.spaceBetween) * this.index
+            this.translateX = -1 * this.perWidth * this.index
 
             // 自动播放
             this.setTimer(this.timer)
@@ -177,14 +214,13 @@ export default {
         },
         next() {
             this.showBtn = true
-            var max = this.list.length - this.perView
+            // var max = this.list.length - this.perView
             // 无缝连接，此处解决运动还未结束，用户就点击下一页，重置ul位置
-            if (this.index === max && this.loop) {
-                this.index = this.perView
-                this.translateX =
-                    this.translateX + this.dataList.length * this.perWidth
+            if (this.index === this.max && this.loop) {
+                this.index = this.startPosition
+                this.translateX = this.translateX + this.span * this.perWidth
             }
-            if (this.index < max) {
+            if (this.index < this.max) {
                 this.index++
                 var finalValue = -1 * this.index * this.perWidth
                 this.move('translateX', 20, finalValue)
@@ -196,9 +232,8 @@ export default {
         prev() {
             // 无缝连接，此处解决运动还未结束，用户就点击上一页，重置ul位置
             if (this.index === 0 && this.loop) {
-                this.index = this.dataList.length
-                this.translateX =
-                    this.translateX - this.dataList.length * this.perWidth
+                this.index = this.span
+                this.translateX = this.translateX - this.span * this.perWidth
             }
             if (this.index > 0) {
                 this.index--
@@ -235,18 +270,16 @@ export default {
                     clearInterval(timer)
 
                     // 无缝连接，鼠标拖动到最后一页，重置ul位置
-                    var max = this.list.length - this.perView
-                    if (this.index === max && this.loop) {
-                        this.index = this.perView
+                    // var max = this.list.length - this.perView
+                    if (this.index === this.max && this.loop) {
+                        this.index = this.startPosition
                         this.translateX =
-                            this.translateX +
-                            this.dataList.length * this.perWidth
+                            this.translateX + this.span * this.perWidth
                     }
                     if (this.index === 0 && this.loop) {
-                        this.index = this.dataList.length
+                        this.index = this.span
                         this.translateX =
-                            this.translateX -
-                            this.dataList.length * this.perWidth
+                            this.translateX - this.span * this.perWidth
                     }
                 } else {
                     this[attr] = this[attr] - sudu
@@ -257,9 +290,12 @@ export default {
             if (this.autoPlay && this.loop) {
                 var that = this
 
+                let speed =
+                    this.options.autoSpeed > 0 ? this.options.autoSpeed : 3000
+
                 this.timer = setInterval(function() {
                     that.next()
-                }, 3000)
+                }, speed)
             }
         },
         clearTimer() {
@@ -271,16 +307,14 @@ export default {
             }
 
             // 无缝连接，重置ul位置
-            var max = this.list.length - this.perView
-            if (this.index === max && this.loop) {
-                this.index = this.perView
-                this.translateX =
-                    this.translateX + this.dataList.length * this.perWidth
+            // var max = this.list.length - this.perView
+            if (this.index === this.max && this.loop) {
+                this.index = this.startPosition
+                this.translateX = this.translateX + this.span * this.perWidth
             }
             if (this.index === 0 && this.loop) {
-                this.index = this.dataList.length
-                this.translateX =
-                    this.translateX - this.dataList.length * this.perWidth
+                this.index = this.span
+                this.translateX = this.translateX - this.span * this.perWidth
             }
 
             // 是否为左键
@@ -361,9 +395,10 @@ export default {
             top: 50%;
             left: 0;
             margin-top: -30px;
-            background-color: red;
             z-index: 100;
             cursor: pointer;
+            font-size: 45px;
+            line-height: 60px;
         }
 
         .ca-slider-right-btn {
@@ -373,9 +408,14 @@ export default {
             top: 50%;
             right: 0;
             margin-top: -30px;
-            background-color: red;
+            font-size: 45px;
+            line-height: 60px;
             z-index: 100;
             cursor: pointer;
+        }
+
+        .ca-slider-btn-disable {
+            cursor: not-allowed;
         }
 
         ul {

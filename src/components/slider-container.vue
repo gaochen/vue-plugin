@@ -7,8 +7,8 @@
 						'transform':'translateX('+translateX+'px)',
 		                'width': ul_w + 'px'
 					}">
-                <!-- <li class="ca-slider-item" v-for="(item, index) in list" :key="index" :style="{backgroundImage: 'url('+ item +')', width: li_w + 'px', marginRight: spaceBetween + 'px'}">
-                </li> -->
+                <li class="ca-slider-item" v-for="(item, index) in list" :key="index" :style="{backgroundImage: 'url('+ item +')', width: li_w + 'px', marginRight: spaceBetween + 'px'}">
+                </li>
                 <slot></slot>
             </div>
         </div>
@@ -78,7 +78,6 @@ export default {
     },
     created() {},
     mounted() {
-        console.log(this.$children)
         this.updateItems()
         this.IEVersion = this.getIEVersion()
         this.init()
