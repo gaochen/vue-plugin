@@ -1,8 +1,8 @@
 <template>
     <div class="hello">
         <div class="slider-demo">
-            <slider :options="options" :dataList="urlList">
-            </slider>
+            <CaSliderPC :options="options" :dataList="urlList">
+            </CaSliderPC>
             <!-- <sliderContainer :options="options">
                 <sliderItem v-for="(item, index) in urlList" :key="index">
                     <img class="slider-image" :src="item" alt="">
@@ -13,14 +13,15 @@
 </template>
 
 <script>
-import slider from '@/components/slider.vue'
+// import CaSliderPC from '@/components/slider.vue'
+// import slider from 'ca-slider-pc'
 import sliderItem from '@/components/slider-item.vue'
 import sliderContainer from '@/components/slider-container.vue'
 
 export default {
     name: 'HelloWorld',
     components: {
-        slider,
+        // slider,
         sliderItem,
         sliderContainer
     },
@@ -37,11 +38,11 @@ export default {
                 perView: 1,     // 一屏多少个图片
                 spaceBetween: 0,    // 图片的间距
                 index: 0,       // 轮播起始位置
-                autoPlay: false,     // 是否自动播放，需要先看起无缝滚动,
+                autoPlay: true,     // 是否自动播放，需要先看起无缝滚动,
                 autoSpeed: 2500,    // 自动播放的时间间隔
-                loop: false,     // 无缝滚动
-                drag: false,     // 是否鼠标可拖动
-                slideGroup: true,   // 是否全屏滚动，针对于一屏有多个图片
+                loop: true,     // 无缝滚动
+                drag: true,     // 是否鼠标可拖动
+                slideGroup: false,   // 是否全屏滚动，针对于一屏有多个图片
             }
         }
     }

@@ -3,6 +3,9 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import CaSliderPC from 'ca-slider-pc'
+
+Vue.use(CaSliderPC)
 
 Vue.config.productionTip = false
 

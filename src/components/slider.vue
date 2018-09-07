@@ -376,6 +376,17 @@ export default {
 </script>
 
 <style lang="less">
+* {
+    margin: 0;
+    padding: 0;
+}
+ul {
+    list-style: none;
+}
+
+li {
+    list-style: none;
+}
 #ca-slider-pc {
     width: 100%;
     height: 100%;
