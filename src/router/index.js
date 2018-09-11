@@ -1,15 +1,24 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
 
 Vue.use(Router)
 
+const one = r => require.ensure([], () => r(require('@/components/one')), 'one');
+const two = r => require.ensure([], () => r(require('@/components/two')), 'two');
+
 export default new Router({
+  base: '/',
+  mode: 'history',
   routes: [
     {
       path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
+      name: 'one',
+      component: one
+    },
+    {
+      path: '/two',
+      name: 'two',
+      component: two
     }
   ]
 })
