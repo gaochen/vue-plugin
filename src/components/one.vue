@@ -1,6 +1,12 @@
 <template>
     <div class="hello">
-        <h1>这是第一个页面</h1>
+        Message: {{ message }}
+        <br>
+        <button @click="message = null">click here to set message to null and provoke watcher error</button>
+        <!-- <div>
+            Name: <b>{{ person.name }}</b> - Zip: {{ person.address.zip }}
+        </div> -->
+        <h1 @click="test">这是第一个页面</h1>
         <div class="slider-demo">
             <ca-slider-pc :options="options" :dataList="urlList">
             </ca-slider-pc>
@@ -14,7 +20,6 @@
 </template>
 
 <script>
-
 export default {
     name: 'one',
     data() {
@@ -27,14 +32,41 @@ export default {
                 'https://m.hexiehealth.com/abwx_cms/up_load/1250122_index.jpg'
             ],
             options: {
-                perView: 2,     // 一屏多少个图片
-                spaceBetween: 20,    // 图片的间距
-                index: 0,       // 轮播起始位置
-                autoPlay: true,     // 是否自动播放，需要先看起无缝滚动,
-                autoSpeed: 2500,    // 自动播放的时间间隔
-                loop: true,     // 无缝滚动
-                drag: true,     // 是否鼠标可拖动
-                slideGroup: true,   // 是否全屏滚动，针对于一屏有多个图片
+                perView: 2, // 一屏多少个图片
+                spaceBetween: 20, // 图片的间距
+                index: 0, // 轮播起始位置
+                autoPlay: true, // 是否自动播放，需要先看起无缝滚动,
+                autoSpeed: 2500, // 自动播放的时间间隔
+                loop: true, // 无缝滚动
+                drag: true, // 是否鼠标可拖动
+                slideGroup: true // 是否全屏滚动，针对于一屏有多个图片
+            },
+            people: [
+                { name: 'Check the console', address: { zip: 4444 } },
+                { name: 'No address' /* address: {zip: 5555} */ }
+            ],
+            message: 'Some message'
+        }
+    },
+    mounted() {
+        // console.log(qwe)
+    },
+    computed: {
+        name: function() {
+            return this.qwe + 2
+        }
+    },
+    watch: {
+        message: function() {
+            console.log(this.message.trim())
+        }
+    },
+    methods: {
+        test() {
+            try {
+                console.log(abc)
+            } catch (error) {
+                console.log(error)
             }
         }
     }

@@ -8,7 +8,7 @@ const two = r => require.ensure([], () => r(require('@/components/two')), 'two')
 
 export default new Router({
   base: '/',
-  mode: 'history',
+  mode: 'hash',
   routes: [
     {
       path: '/',
