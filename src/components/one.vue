@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
     name: 'one',
     data() {
@@ -49,7 +51,11 @@ export default {
         }
     },
     mounted() {
-        // console.log(qwe)
+        
+        console.log(1)
+        axios.get('http://192.168.10.153:3000/get').then(function(response) {
+            console.log(response)
+        })
     },
     computed: {
         name: function() {
@@ -63,10 +69,12 @@ export default {
     },
     methods: {
         test() {
+            // console.log(abcd)
             try {
-                console.log(abc)
-            } catch (error) {
-                console.log(error)
+                aFunctionThatMightFail()
+            } catch (err) {
+                // 手动抓取错误
+                // window.Sentry.captureException(err)
             }
         }
     }
