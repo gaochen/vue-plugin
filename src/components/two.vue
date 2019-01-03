@@ -17,6 +17,11 @@ export default {
         return {
            
         }
+    },
+    mounted() {
+        
+        console.log(window.referrer)
+        console.log(window.location.href)
     }
 }
 </script>
