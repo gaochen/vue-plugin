@@ -4,35 +4,61 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import CaSliderPc from 'ca-slider-pc'
-import storage from './utils/storage'
-import generateUUID from './utils/generateUUID'
+import basicInfo from './utils/basicInfo'
 
 Vue.use(CaSliderPc)
 
 Vue.config.productionTip = false
 
-// 唯一id
-let uuid = storage.get('uuid', true)
-if (!uuid) {
-  uuid = generateUUID()
-  storage.set('uuid', uuid, true)
+Vue.prototype.$basicInfo = basicInfo
+Vue.prototype.$sendBasicInfo = function(basicInfo) {
+  let args = ''
+  let params = Object.assign({}, basicInfo)
+  params.v = JSON.stringify(params.v)
+  for (var i in params) {
+    if (args !== '') {
+      args += '&'
+    }
+    args += i + '=' + encodeURIComponent(params[i])
+  }
+  console.log(args)
+  var img = new Image(1, 1)
+  img.src = 'https://warriors.jd.com/log.gif?' + args
 }
 
 router.beforeEach((to, from, next) => {
   let now = new Date().getTime()
+  // 来源
+  Vue.prototype.$basicInfo.ref = document.referrer
+  // 当前时间戳
+  Vue.prototype.$basicInfo.rm = now
+  // 当前时间戳
+  Vue.prototype.$basicInfo.v.yt = now
+  // 当前url
+  Vue.prototype.$basicInfo.v.p0 = {url : window.location.href}
 
   document.addEventListener('DOMContentLoaded', function(){
       let domReady = new Date().getTime()
 
-      console.log('domReady: ' + domReady)
-      console.log(domReady - now)
+      // domComplete zt
+      Vue.prototype.$basicInfo.v.zt = domReady - now
+      // 白屏时间 bt
+      Vue.prototype.$basicInfo.v.bt = domReady - now
+      // domReady dt
+      Vue.prototype.$basicInfo.v.dt = domReady - now
   }, false);
 
   window.onload=function(){
     let onload = new Date().getTime()
 
-    console.log('onload: ' + onload)
-    console.log(onload - now)
+    // onload
+    Vue.prototype.$basicInfo.v.et = onload - now
+    // 首屏加载时间
+    Vue.prototype.$basicInfo.v.ct = onload - now
+
+    // let basicInfo = Object.arguments({}, Vue.prototype.$basicInfo)
+    console.log(Vue.prototype.$basicInfo)
+    Vue.prototype.$sendBasicInfo(Vue.prototype.$basicInfo)
   }
 
   next()
@@ -40,12 +66,22 @@ router.beforeEach((to, from, next) => {
 
 Vue.directive('stat', {
   bind: (el, binding) => {
-    el.addEventListener('click', () => {
-      console.log(document.title)
+    el.addEventListener('click', (event) => {
       const value = binding.value
-      console.log(value)
-      console.log(uuid)
-      // alert(value)
+
+      // 点击类型，预定义
+
+      // 位置信息
+      Vue.prototype.$basicInfo.v.p0.poi = value.poi
+      // text
+      Vue.prototype.$basicInfo.v.p0.text = event.srcElement ? event.srcElement.innerText : event.target.innerText
+      // desc
+      Vue.prototype.$basicInfo.v.p0.desc = event.srcElement ? event.srcElement.innerText : event.target.innerText
+      // url
+      Vue.prototype.$basicInfo.v.p0.url = window.location.href
+
+      console.log(Vue.prototype.$basicInfo)
+      Vue.prototype.$sendBasicInfo(Vue.prototype.$basicInfo)
     })
   }
 })

@@ -6,7 +6,7 @@
         <!-- <div>
             Name: <b>{{ person.name }}</b> - Zip: {{ person.address.zip }}
         </div> -->
-        <h1 @click="test" v-stat="'123'">这是第一个页面</h1>
+        <h1 @click="test" v-stat="{poi: 'one-title', router: $route.name}">这是第一个页面</h1>
         <div class="slider-demo">
             <ca-slider-pc :options="options" :dataList="urlList">
             </ca-slider-pc>
