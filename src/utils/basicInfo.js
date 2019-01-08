@@ -1,5 +1,6 @@
 import generateUUID from './generateUUID'
 import storage from './storage'
+import Cookie from './cookie'
 
 // 浏览器基本信息
 
@@ -131,23 +132,23 @@ _AgentInfo._init();
 
 // 埋点字段
 var basicInfo = {
-    t: '',  // 采集类型，网页、元素
-    m: '',  // 项目名称，预定义，固定值
-    pin: '',  // 登录用户名，从store里面获取
+    t: '',  // 采集类型，网页、元素，首次进入页面-www.001，浏览页面-nav.001，点击-clk
+    m: 'MALL-CA2019-1',  // 项目名称，预定义，固定值，MALL-CA2019-1
+    pin: '',  // 登录用户名，从store里面获取 userName
     uid: '',  // 用户首次访问生成的唯一标识，存在localStorage
     sid: '',  // 用户本次登录生成的唯一标识，存在sessionStorage
-    eit: '',  // 时间id，用于后端接口查询时使用
+    eid: '',  // 事件id，用于后端接口查询时使用，进入新页面就更新eid，加在请求头里面
     v: {
-      t1: '',   // 网页分类，预定义
-      t2: '',   // 分类，预定义
+      t1: '',   // 网页分类，预定义，成品-mall，大宗-raw
+      t2: '',   // 分类，预定义，url
       p0: {
-        rept: '',  // 点击类型，预定义
+        rept: '',  // 点击类型，预定义，点击-clk, 鼠标滑动曝光-impr
         poi: '',  // 位置信息，tag信息
         text: '', // 该元素的标题
         url: '',  // 该元素的url
-        desc: '',  // 该元素的描述
-        mcinfo: '',  // 该元素的特殊信息
-        biclk: ''   // 该元素的位置
+        desc: '',  // 该元素的描述，空
+        mcinfo: '',  // 该元素的特殊信息，空
+        biclk: ''   // 该元素的位置，空
       },
       pinid: '',  // 登录用户id
       sc: '',   // 颜色深度
@@ -163,10 +164,14 @@ var basicInfo = {
       xt: '',   // 用户本次访问站点时间，sid生成时间
       yt: '',   // 当前时间戳
       zt: '',   // domComplete减去yt的时间
-      bt: '',   // 白屏时间：从打开网站到有内容渲染出来的时间节点
-      ct: '',   // 首评时间：首评内容渲染完毕的时间节点
-      dt: '',   // domready触发节点
-      et: '',   // 总下载时间，window.onload
+      bt: '-',   // 白屏时间：从打开网站到有内容渲染出来的时间节点
+      ct: '-',   // 首评时间：首评内容渲染完毕的时间节点
+      dt: '-',   // domready触发节点
+      et: '-',   // 总下载时间，window.onload
+      ua: '-',
+      ub: '-',
+      uc: '-',
+      ud: '-',
       dataver: '0.1'   // 数据采集版本号
     },
     ref: '',  // 访问来源
@@ -175,30 +180,33 @@ var basicInfo = {
   
   // 初始化数据
   // uid
-  let uid = storage.get('basic_uid', true)
-  let wt = storage.get('basic_wt', true)
+//   Cookie.set('example', value, 'Infinity')
+
+//   console.log('cookie:' + Cookie.get('example'))
+  let uid = Cookie.get('basic_uid')
+  let wt = Cookie.get('basic_wt')
   if (!uid || !wt) {
     uid = generateUUID()
     wt = new Date().getTime()
-  
-    storage.set('basic_uid', uid, true)
-    storage.set('basic_wt', wt, true)
+    
+    Cookie.set('basic_uid', uid, 'Infinity', '.ca-b2b.com')
+    Cookie.set('basic_wt', wt, 'Infinity', '.ca-b2b.com')
   }
   basicInfo.uid = uid
   basicInfo.v.wt = wt
   
   // sid
-  let sid = storage.get('basic_sid')
-  let xt = storage.get('basic_xt')
-  if (!sid || !xt) {
-    sid = generateUUID()
-    xt = new Date().getTime()
+//   let sid = Cookie.get('basic_sid')
+//   let xt = Cookie.get('basic_xt')
+//   if (!sid || !xt) {
+//     sid = generateUUID()
+//     xt = new Date().getTime()
   
-    storage.set('basic_sid', sid)
-    storage.set('basic_xt', xt)
-  }
-  basicInfo.sid = sid
-  basicInfo.v.xt = xt
+//     storage.ss.set('basic_sid', sid)
+//     storage.ss.set('basic_xt', xt)
+//   }
+//   basicInfo.sid = sid
+//   basicInfo.v.xt = xt
   
   // 颜色深度sc
   basicInfo.v.sc = window.screen.colorDepth

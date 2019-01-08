@@ -1,42 +1,53 @@
 const storage = {
-  get: function(key, bool) {
-    var data
-    if (bool) {
-      data = window.localStorage.getItem(key)
-    } else {
-      data = window.sessionStorage.getItem(key)
-    }
+  'ls': {
+    get: function (key) {
+      let data = window.localStorage.getItem(key)
 
-    try {
-      return JSON.parse(data)
-    } catch (err) {
-      return data
-    }
-  },
+      try {
+        return JSON.parse(data)
+      } catch (err) {
+        return data
+      }
+    },
 
-  set: function(key, data, bool) {
-    if (typeof data === 'object') {
-      data = JSON.stringify(data)
-    }
-    if (bool) {
+    set: function (key, data, bool) {
+      if (typeof data === 'object') {
+        data = JSON.stringify(data)
+      }
       window.localStorage.setItem(key, data)
-    } else {
-      window.sessionStorage.setItem(key, data)
-    }
-  },
+    },
 
-  remove: function(key, bool) {
-    if (bool) {
+    remove: function (key, bool) {
       window.localStorage.removeItem(key)
-    } else {
-      window.sessionStorage.removeItem(key)
+    },
+
+    clear: function (bool) {
+      window.localStorage.clear()
     }
   },
+  'ss': {
+    get: function (key, bool) {
+      var data = window.sessionStorage.getItem(key)
 
-  clear: function(bool) {
-    if (bool) {
-      window.localStorage.clear()
-    } else {
+      try {
+        return JSON.parse(data)
+      } catch (err) {
+        return data
+      }
+    },
+
+    set: function (key, data, bool) {
+      if (typeof data === 'object') {
+        data = JSON.stringify(data)
+      }
+      window.sessionStorage.setItem(key, data)
+    },
+
+    remove: function (key, bool) {
+      window.sessionStorage.removeItem(key)
+    },
+
+    clear: function (bool) {
       window.sessionStorage.clear()
     }
   }

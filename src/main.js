@@ -5,6 +5,8 @@ import App from './App'
 import router from './router'
 import CaSliderPc from 'ca-slider-pc'
 import basicInfo from './utils/basicInfo'
+import Cookie from './utils/cookie'
+import generateUUID from './utils/generateUUID'
 
 Vue.use(CaSliderPc)
 
@@ -37,6 +39,23 @@ router.beforeEach((to, from, next) => {
   // 当前url
   Vue.prototype.$basicInfo.v.p0 = {url : window.location.href}
 
+  // sid过期时间为1h
+  let sid = Cookie.get('basic_sid')
+  let xt = Cookie.get('basic_xt')
+  if (!sid || !xt) {
+    sid = generateUUID()
+    xt = new Date().getTime()
+  
+    Cookie.set('basic_sid', sid, 3600, '.ca-b2b.com')
+    Cookie.set('basic_xt', xt, 3600, '.ca-b2b.com')
+  }
+  Vue.prototype.$basicInfo.sid = sid
+  Vue.prototype.$basicInfo.v.xt = xt
+
+  // eid，每次进入页面重新生成
+  let eid = generateUUID()
+  Vue.prototype.$basicInfo.eid = eid
+
   document.addEventListener('DOMContentLoaded', function(){
       let domReady = new Date().getTime()
 
@@ -68,6 +87,7 @@ Vue.directive('stat', {
   bind: (el, binding) => {
     el.addEventListener('click', (event) => {
       const value = binding.value
+      console.log(value)
 
       // 点击类型，预定义
 
