@@ -50,9 +50,7 @@ export default {
             message: 'Some message'
         }
     },
-    mounted() {
-        
-        console.log(1)
+    mounted() {        
         axios.get('http://192.168.10.153:3000/get').then(function(response) {
             console.log(response)
         })
@@ -70,7 +68,7 @@ export default {
     methods: {
         test() {
             console.log(document.cookie)
-            // this.$router.push('two')
+            this.$router.push('two')
 
             // console.log(abcd)
             try {
