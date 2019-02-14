@@ -6,7 +6,8 @@
         <!-- <div>
             Name: <b>{{ person.name }}</b> - Zip: {{ person.address.zip }}
         </div> -->
-        <h1 @click="test" v-stat="{poi: `one-title-${message}`, router: $route.name}" >搜索</h1>
+        <h1 @click="test" v-stat="{poi: inputValue, router: $route.name}" :content="`search|mall|${inputValue}`">搜索</h1>
+        <input type="text" v-model="inputValue">
         <div class="slider-demo">
             <ca-slider-pc :options="options" :dataList="urlList">
             </ca-slider-pc>
@@ -15,6 +16,9 @@
                     <img class="slider-image" :src="item" alt="">
                 </sliderItem>
             </sliderContainer> -->
+        </div>
+        <div class="youjian" oncontextmenu="return false;">
+            <!-- <img src="https://m.hexiehealth.com/abwx_cms/up_load/20180329095447_573.jpg" oncontextmenu="return false;" alt=""> -->
         </div>
     </div>
 </template>
@@ -47,12 +51,18 @@ export default {
                 { name: 'Check the console', address: { zip: 4444 } },
                 { name: 'No address' /* address: {zip: 5555} */ }
             ],
-            message: 'Some message'
+            message: 'Some message',
+            inputValue: 'abc'
         }
     },
     mounted() {
-        
-        console.log(1)
+        let options = {
+            title: '页面1',
+            description: '这是页面one',
+            keywords: 'one,page-one'
+        }
+        this.$setMeta(options)
+
         axios.get('http://192.168.10.153:3000/get').then(function(response) {
             console.log(response)
         })
@@ -70,7 +80,7 @@ export default {
     methods: {
         test() {
             console.log(document.cookie)
-            // this.$router.push('two')
+            this.$router.push('two')
 
             // console.log(abcd)
             try {
@@ -96,5 +106,12 @@ export default {
     .slider-image {
         width: 100%;
     }
+}
+.youjian {
+    width: 400px;
+    height: 400px;
+    background-image: url("https://m.hexiehealth.com/abwx_cms/up_load/20180511105015_386.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 </style>

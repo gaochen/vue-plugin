@@ -19,7 +19,14 @@ export default {
         }
     },
     mounted() {
-        
+        let options = {
+            title: '页面2',
+            description: '这是页面two',
+            keywords: 'two,page-two'
+        }
+        this.$setMeta(options)
+
+
         console.log(window.referrer)
         console.log(window.location.href)
     }

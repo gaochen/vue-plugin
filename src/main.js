@@ -7,6 +7,9 @@ import CaSliderPc from 'ca-slider-pc'
 import basicInfo from './utils/basicInfo'
 import Cookie from './utils/cookie'
 import generateUUID from './utils/generateUUID'
+import setMeta from './utils/meta'
+
+Vue.prototype.$setMeta = setMeta
 
 Vue.use(CaSliderPc)
 
@@ -87,7 +90,7 @@ Vue.directive('stat', {
   bind: (el, binding) => {
     el.addEventListener('click', (event) => {
       const value = binding.value
-      console.log(value)
+      console.log(value.poi())
 
       // 点击类型，预定义
 
@@ -101,7 +104,7 @@ Vue.directive('stat', {
       Vue.prototype.$basicInfo.v.p0.url = window.location.href
 
       console.log(Vue.prototype.$basicInfo)
-      Vue.prototype.$sendBasicInfo(Vue.prototype.$basicInfo)
+      // Vue.prototype.$sendBasicInfo(Vue.prototype.$basicInfo)
     })
   }
 })
